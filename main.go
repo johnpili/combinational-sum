@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 func main() {
-	generateFiles()
+	generateFiles(200)
 }
 
 func calculate(target int, sum int, start int, result *[]int, delta *int) {
@@ -55,12 +56,18 @@ func calculateToFile(file *os.File, target int, sum int, start int, result *[]in
 	}
 }
 
-func generateFiles() {
-	for i := 1; i <= 10; i++ {
-		buffer := make([]int, 0)
-		totalCombinations := 0
-		generateFile(i, &buffer, &totalCombinations)
+func generateFiles(n int) {
+	var wg sync.WaitGroup
+	for i := 1; i <= n; i++ {
+		wg.Add(1)
+		go func(target int) {
+			buffer := make([]int, 0)
+			totalCombinations := 0
+			generateFile(target, &buffer, &totalCombinations)
+			wg.Done()
+		}(i)
 	}
+	wg.Wait()
 }
 
 func generateFile(target int, buffer *[]int, totalCombinations *int) {
