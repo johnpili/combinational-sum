@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	generateFiles(200)
+	generateFiles(1, 200)
 }
 
 func calculate(target int, sum int, start int, result *[]int, delta *int) {
@@ -39,6 +39,11 @@ func calculateToFile(file *os.File, target int, sum int, start int, result *[]in
 			log.Fatal(err)
 		}
 		buf = append(buf, '\n')
+		/*gzout := gzip.NewWriter(file)
+		if _, err := gzout.Write(buf); err != nil {
+			log.Println(err)
+		}
+		defer gzout.Close()*/
 		if _, err := file.Write(buf); err != nil {
 			log.Println(err)
 		}
@@ -56,9 +61,9 @@ func calculateToFile(file *os.File, target int, sum int, start int, result *[]in
 	}
 }
 
-func generateFiles(n int) {
+func generateFiles(start int, end int) {
 	var wg sync.WaitGroup
-	for i := 1; i <= n; i++ {
+	for i := start; i <= end; i++ {
 		wg.Add(1)
 		go func(target int) {
 			buffer := make([]int, 0)
@@ -71,6 +76,7 @@ func generateFiles(n int) {
 }
 
 func generateFile(target int, buffer *[]int, totalCombinations *int) {
+	_ = os.Remove(fmt.Sprintf("%d.txt", target))
 	f, err := os.OpenFile(fmt.Sprintf("%d.txt", target), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
